@@ -69,6 +69,18 @@ function checkURL(url) {
     return url.indexOf(' ') === -1 ?  true : false;
 }
 
+var resolveFsURL = null;
+if (window.webkitResolveLocalFileSystemURL) {
+  resolveFsURL = function(filePath, win, fail) {
+    window.webkitResolveLocalFileSystemURL(filePath, win, fail);
+  }
+}
+else {
+  resolveFsURL = function(filePath, win, fail) {
+    window.resolveLocalFileSystemURL(filePath, win, fail);
+  }
+}
+
 var idCounter = 0;
 
 var transfers = {};
@@ -130,7 +142,7 @@ FileTransfer.prototype.upload = function(filePath, server, successCallback, erro
         errorCallback && errorCallback(error);
     };
 
-    window.resolveLocalFileSystemURL(filePath, function(entry) {
+    resolveFsURL(filePath, function(entry) {
         entry.file(function(file) {
             var reader = new FileReader();
             reader.onloadend = function() {
